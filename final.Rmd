@@ -1,0 +1,121 @@
+## Question 1
+
+The data file for this exercise is income_data.csv which you should have downloaded as part of the exam materials.  It contains information from the 1994 US Census.  You may read more about it in the README file.
+
+The dataset contains 13 variables.  This question seeks to build a predictive model for the variable "income_group" which divides observations according to annual income.  income_group = 1 when an individual's income exceeds 50,000 USD and = 0 when it does not.  The other variables in the dataset are potential predictors of income_group.  The README file from the exam materials contains a detailed description of these variables.
+
+Please answer the following questions:
+
+### Question 1.A
+
+Select a set of variables that you think are relevant for predicting income_group.  These could be all variables, or a subset of variables.  Briefly describe why you focus on the variables you do.
+
+### Question 1.B
+
+Estimate a decision tree for predicting income_group as a function of the variable you selected in the previous question.  Plot the estimated decision tree, and describe in words the structure of its initial splits.
+
+### Question 1.C
+
+Assess the out-of-sample performance of your decision tree by first splitting your data into training and test portions; then estimating your tree model on the training data; and, finally, evaluating the predictions of the estimated model on the test set.  What is the test-set accuracy of your model?
+
+Explain in general why decision trees are not in general considered a robust prediction algorithm.
+
+### Question 1.D
+
+One alternative to decision trees is the bagging algorithm.  Briefly explain why we might expect the bagging approach to produce better test-set performance than a decision tree.
+
+Estimate a bagging model on the same training data you used in the previous question to estimate your decision tree, and evalute its test-set performance.  Do you see an improvement over the decision tree's performance?
+
+### Question 1.E
+
+Explain how you think the test-set performance of the bagging model will vary in the number of individual trees that are estimated.  Verify whether your intuition is validated in this example by recording the test set performance of the bagging model for a variety of choices for the number of trees.  Produce a plot that relates the number of trees on the x-axis to the test-set performance on the y-axis.
+
+## Question 2
+
+NB: this question requires using the `keras` package.  You may build your code either on your local computers or in a Colab R notebook (you can start a fresh R Colab notebook via https://colab.research.google.com/#create=true&language=r).  Recall that, if you use a Colab notebook, you will need to run `install.packages("keras")` as the first line of code.  In any case, you must turn in an R script NOT a notebook file.
+
+Consider the function y = x - 0.3 * x^2 + 6 * x^3 - 0.4 * x^5.  The following code draws 500 random points from this function on the [-5, 5] interval and plots them to give a sense of the shape of the function.
+
+```{r}
+x <- runif(500, -5, 5)
+y <- x - 0.3 * x^2 + 6 * x^3 - 0.4 * x^5
+
+library(ggplot2)
+ggplot(data.frame(x = x, y = y), aes(x, y)) + geom_line()
+```
+
+### Question 2.A
+
+The following code gives an example of a feed-forward neural network for approximating the function.
+
+```{r}
+
+library(keras)
+
+model <- keras_model_sequential() %>%
+    layer_dense(5, activation = "relu", input_shape = 1) %>%
+    layer_dense(1)
+```
+
+Describe in words the structure of this neural network.  How many layers does it have?  How many nodes does each layer have?  How many parameters are present in each layer?
+
+### Question 2.B
+
+The following code estimates the neural network model specified in the previous question.
+
+```{r}
+model %>% compile(
+    optimizer = "rmsprop",
+    loss = "mse", # mean squared error
+    metrics = "mae" # mean absolute error
+)
+
+history <- model %>% fit(x, y, epochs = 1000, batch_size = 50)
+```
+
+Describe in words the process by which the neural network's parameters are estimated when one executes the above code.
+
+### Question 2.C
+
+The following code specifies an alternative neural network model for approximating the function.
+
+```{r}
+model2 <- keras_model_sequential() %>%
+    layer_dense(1, activation = "sigmoid", input_shape = 1)
+```
+
+Explain why this neural network is unlikely to approximate well the function.
+
+### Question 2.D
+
+According to Hornik, Stinchcombe, and White's Universal Approximation Theorem, how should one modify the model in the previous question to better approximate the function?  Write down code that implements this modification, and compare the accuracy of the modified model to that of the model in the previous question.
+
+## Question 3
+
+The data file for this question is trance.csv (which you should have downloaded as part of the exam materials).  This file tabulates, by demographic group, survey responses about individual preferences over trance music, where 1 is "don't enjoy at all" and 5 is "enjoy very much."  The README file from the exam materials contains a more detailed description.
+
+Please answer the following questions:
+
+### Question 3.A
+
+Suppose we wish to model the distribution over survey responses within demographic cells with a multinomial distribution, where the same distribution generates all responses.  What is the maximum likelihood estimate of the multinomial probability vector?
+
+### Question 3.B
+
+Now, suppose there may exist heterogeneity across cells, and we model this heterogeneity as a cell-specific latent variable that can take one of two values, where the value of the latent variable governs the parameters of the multinomial distribution that generate survey responses.
+
+Describe how these assumptions can be formalized with a multinomial mixture model.  How many parameters does the mixture model have?
+
+### Question 3.C
+
+Use the *multmixEM* function from the *mixtools* package to estimate the multinomial mixture model you described in the previous question.  How do the parameters of the multinomial distributions differ across latent categories?
+
+### Question 3.D
+
+Which demographic variables are most associated with each latent class?
+
+### Question 3.E
+
+Now suppose we wish to model responses to two survey questions instead of one.  For example, responses to the trance question and to a question about another genre.  Continue to assume that a single, cell-specific latent variable drives any underlying heterogeneity.
+
+Describe in detail a potential structure for this extended model, how many parameters it has, and how you might go about estimating it in the absence of a ready-to-go R package like *mixtools*.
